@@ -53,6 +53,18 @@ The Components SDK on web supports a payment method picker component and individ
 
 Coding agents should determine which the user wants before beginning. Users with existing custom channel pickers will need to use individual components to integrate with their custom channel picker.
 
+### Searching for payment methods
+
+If you want to reference a specific payment method, use `getActiveChannels({filter: channelCode})[0]`. ChannelCode can be a string, regex or array of strings. You can also fetch everything and manually filter.
+
+### Instant submit for QR
+
+You can submit some payment methods (e.g. QRs) without waiting for user input.
+
+Note you cannot call submit from the init event, and if you call submit from a timeout you must clean it up.
+
+If only showing the QR flow, the end of the flow is the submission-end event.
+
 ### Action flow
 
 Actions (3DS iframes, QRs, etc...) are opened in a modal window by default.
@@ -100,4 +112,4 @@ Ensure the XenditComponents constructor runs in the first effect hook.
 
 Prefer useLayoutEffect for this use case. Never mix useEffect and useLayoutEffect as it makes the effect order weird.
 
-Strict mode runs effects twice. You may see duplicate network requests in development, this is ok.
+IMPORTANT: Strict mode causes effects to run twice. Do not let it initialize XenditComponents twice. If the ref already exists, reuse it.
