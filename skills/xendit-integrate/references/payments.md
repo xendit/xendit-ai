@@ -31,7 +31,7 @@ IMPORTANT: Creating a new payment request, replacing an existing one, can result
 | `/v3/payment_requests/{id}/cancel`            | POST   | Cancel payment request            | [API Reference](https://docs.xendit.co/apidocs/cancel-payment-request.md)            |
 | `/v3/payment_requests/{id}/simulate`          | POST   | Simulate payment (test mode)      | [API Reference](https://docs.xendit.co/apidocs/simulate-payment-test-mode.md)        |
 | `/v3/payment_requests/{id}/installment_plans` | GET    | Check available installment plans | [API Reference](https://docs.xendit.co/apidocs/check-available-installment-plans.md) |
-| `/v3/payment_requests/{id}/refunds`           | POST   | Refund a payment                  | [API Reference](https://docs.xendit.co/apidocs/refund-payment-request.md)            |
+| `/refunds`                                    | POST   | Refund a payment                  | [API Reference](https://docs.xendit.co/apidocs/refund-payment-request.md)            |
 
 ### Create Payment Request
 
