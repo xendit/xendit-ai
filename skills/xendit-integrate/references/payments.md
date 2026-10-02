@@ -17,6 +17,8 @@ IMPORTANT: Use the header `api-version: 2024-11-11` for all Payments API request
 
 IMPORTANT: When handling actions, handle ONE action only. Read the `type` AND `descriptor` fields and handle the first action that has a `type` AND `descriptor` that you support. Ignore unknown actions. You MUST support ignoring unexpected actions.
 
+IMPORTANT: Amounts are _not_ in minor units.
+
 IMPORTANT: Creating a new payment request, replacing an existing one, can result in double payment. Cancelling helps, but not all payment methods support cancellation so you must handle unexpected payments.
 
 ## Payment Request endpoints
@@ -81,7 +83,9 @@ Fetches a Payment Token.
 
 ### Cancel Payment Token
 
-Deactivates a payment token. It can no longer be used for payments.
+Deactivates a payment token (if already active) or cancels a tokenization flow (if not active yet).
+
+Deactivated tokens can no longer be used in payment requests.
 
 ## Payment endpoints
 
@@ -111,14 +115,77 @@ For payments with `capture_method: MANUAL`, captures the payment.
 
 Reference: [Payment](https://docs.xendit.co/apidocs/payment-webhook-notification.md), [Payment Token](https://docs.xendit.co/apidocs/payment-token-webhook-notification.md), [Refund](https://docs.xendit.co/apidocs/refund-webhook-notification.md)
 
-| Event                       | Description                                   |
-| --------------------------- | --------------------------------------------- |
-| `payment_request.completed` | Payment succeeded                             |
-| `payment_request.failed`    | Payment failed                                |
-| `payment_request.pending`   | Payment is pending (awaiting customer action) |
-| `payment_request.cancelled` | Payment request was cancelled                 |
-| `payment_token.activated`   | Token is ready for use                        |
-| `payment_token.failed`      | Token creation failed                         |
-| `payment_token.expired`     | Token has expired                             |
-| `refund.succeeded`          | Refund completed successfully                 |
-| `refund.failed`             | Refund failed                                 |
+IMPORTANT: There aren't events for the complete payment request lifecycle, by design. Use `payment.*` events.
+
+| Event                      | Description                         |
+| -------------------------- | ----------------------------------- |
+| `payment_request.expiry`   | Payment request expired             |
+| `payment.capture`          | Payment captured (funds collected)  |
+| `payment.authorization`    | Payment authorized (manual capture) |
+| `payment.expiry`           | Payment authorization expired       |
+| `payment.failure`          | Payment failed                      |
+| `payment_token.activation` | Token is ready for use              |
+| `payment_token.failure`    | Token creation failed               |
+| `payment_token.expiry`     | Token has expired                   |
+| `refund.succeeded`         | Refund completed successfully       |
+| `refund.failed`            | Refund failed                       |
+
+### payment_request.expiry
+
+Fires when a payment request expires without receiving payment. An expired payment request will no longer accept new payments.
+
+IMPORTANT: Since some payment methods can't be cancelled, it's possible to recieve payment after expiry. You must listent to the `payment.*` webhooks.
+
+### payment.capture
+
+Fires when a Payment object transitions to `SUCCEEDED` status and funds are collected.
+
+Use this event to fulfil orders.
+
+### payment.authorization
+
+Fires when a Payment object transitions to `AUTHORIZED` status. This only occurs for payments with `capture_method: MANUAL`. The funds are reserved on the customer's account but not yet collected.
+
+Use this event to fulfil orders if you use a manual capture flow.
+
+You must call the Capture Payment endpoint to collect the funds before the authorization expires.
+
+### payment.expiry
+
+Fires when a successful payment authorization expires before being captured. This only occurs for payments with `capture_method: MANUAL` where you did not call the Capture Payment endpoint in time.
+
+You can no longer capture the funds.
+
+### payment.failure
+
+Fires when a Payment object transitions to `FAILED` status. The `failure_code` field indicates the reason (e.g., `INSUFFICIENT_BALANCE`, `CARD_DECLINED`, `AUTHENTICATION_FAILED`).
+
+Use this event to fail orders or initiate a retry.
+
+### payment_token.activation
+
+Fires when a payment token can be used.
+
+The payload includes `token_details` with account information when available (account name, balance).
+
+### payment_token.failure
+
+Fires when token activation fails.
+
+Use this to fail your save payment method flow.
+
+### payment_token.expiry
+
+Fires when a previously active token expires and can no longer be used for payments. Tokens can expire due to reaching their natural expiry period.
+
+Use this to remove the link between your customer and this saved token.
+
+### refund.succeeded
+
+Fires when a refund is successfully processed.
+
+### refund.failed
+
+Fires when a refund fails. Check the `failure_code` field for the reason.
+
+Use this event to flag the failed refund for manual review.

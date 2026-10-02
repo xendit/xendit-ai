@@ -44,6 +44,8 @@ Creates a recurring billing plan. Requires a customer ID, payment tokens, amount
 
 Set `immediate_payment: true` to charge immediately on creation. Set `failed_cycle_action: STOP` to deactivate the plan if a cycle fails.
 
+IMPORTANT: Subscriptions created from existing tokens must use tokens capable of merchant initiated transactions. (It will not validate on creation, the next charge will fail).
+
 ### Get Subscription Plan
 
 Fetches a Subscription Plan.
@@ -87,6 +89,8 @@ Cancels a scheduled cycle. The customer will not be charged for this billing per
 
 Triggers an immediate payment attempt on the next scheduled cycle. This brings forward the payment date of the scheduled cycle. The date of the cycle after that is unaffected.
 
+Forced retries have a separate retry limit from automatic retries.
+
 ### Simulate Cycle Payment
 
 Test mode only. Simulates a successful payment for a scheduled cycle.
@@ -104,3 +108,33 @@ Reference: [Subscription](https://docs.xendit.co/apidocs/subscription-webhook.md
 | `recurring.cycle.succeeded`            | Cycle payment completed                        |
 | `recurring.cycle.failed`               | Cycle payment failed after all retries         |
 | `recurring.cycle.force_attempt_failed` | Forced payment attempt failed                  |
+
+### recurring.plan.activated
+
+Fires when a recurring plan is successfully activated and ready to charge. This happens after plan creation when all prerequisites are met (e.g., payment token is active).
+
+Use this to activate the product or features your customer is subscribing to.
+
+### recurring.plan.inactivated
+
+Fires when a plan is deactivated. A deactivated plan cannot be reactivated. Use this event to revoke access or notify customers their subscription has ended.
+
+### recurring.cycle.created
+
+Fires when a new billing cycle is created for a plan. The cycle is in `SCHEDULED` status with a `scheduled_timestamp` indicating when payment will be attempted.
+
+### recurring.cycle.retrying
+
+Fires when a cycle payment fails and a retry is scheduled. The `attempt_details` array shows the failure reason and `next_retry_timestamp` indicates when the next attempt will occur.
+
+### recurring.cycle.succeeded
+
+Fires when a cycle payment completes successfully. The `attempt_details` includes the successful `payment_id`.
+
+### recurring.cycle.failed
+
+Fires when a cycle payment fails after all retry attempts are exhausted. If `failed_cycle_action: STOP`, the plan becomes inactive. If `failed_cycle_action: RESUME`, the plan continues to the next cycle. The unpaid amount does not carry over.
+
+### recurring.cycle.force_attempt_failed
+
+Fires when a forced payment attempt (triggered via Force Attempt endpoint) fails.

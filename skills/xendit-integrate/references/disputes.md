@@ -100,3 +100,29 @@ Reference: [Dispute](https://docs.xendit.co/apidocs/dispute-webhook-notification
 | `dispute.won`                  | Ruled in your favor                    |
 | `dispute.lost`                 | Ruled against you                      |
 | `dispute.due_date_approaching` | Deadline is near, respond soon         |
+
+### dispute.action_required
+
+Fires when a new dispute is raised against a payment and requires your response. The dispute is in `ACTION_REQUIRED` status.
+
+Use this event to alert your team immediately. Challenge the dispute before the `due_date` or it will automatically be lost.
+
+### dispute.under_review
+
+Fires when you've submitted a challenge and it's being reviewed. The dispute is in `UNDER_REVIEW` status.
+
+It can return to the `ACTION_REQUIRED` status.
+
+A `dispute.won`, `dispute.lost` or `dispute.action_required` event will follow after the review.
+
+### dispute.won
+
+Fires when the dispute is ruled in your favor. The disputed funds are returned to your account.
+
+### dispute.lost
+
+Fires when the dispute is ruled against you. The disputed amount is debited from your account. Check `status_reason` for why.
+
+### dispute.due_date_approaching
+
+Fires as a reminder when the response deadline is approaching but you haven't yet submitted a challenge. The dispute is still in `ACTION_REQUIRED` status.

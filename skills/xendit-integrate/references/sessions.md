@@ -13,6 +13,18 @@ Use it when:
 - You want prebuilt retry and channel selection flows
 - You want to accept card payments but haven't done or can't do PCI DSS SAQ D
 
+## Important Rules
+
+IMPORTANT: Never log or save the `components_sdk_key` or `payment_link_url`. Save the session ID instead. If you need to, fetch the `components_sdk_key` or `payment_link_url` later using that ID.
+
+IMPORTANT: If using payment links, ensure you handle when the page is restored from the bfcache. Clear any pending states set up during the session load.
+
+IMPORTANT: Callback urls must be https, even in development. As a workaround in development, use a dummy url or ngrok or /etc/hosts.
+
+IMPORTANT: Callback urls are for UX only, and must NOT be trusted as a source of status updates. Only use webhooks for status updates.
+
+IMPORTANT: Amounts are _not_ in minor units.
+
 ## Session modes
 
 The `mode` parameter determines how the customer completes payment:
@@ -39,7 +51,6 @@ Multiple flows (modes) are available. Coding agents should determine which the u
 
 - For `mode=COMPONENTS`, pass the `components_sdk_key` to the client and use it to initialize the XenditComponents SDK
 - For `mode=PAYMENT_LINK`, redirect the user to `payment_link_url`
-- For `mode=CARDS_SESSION_JS`, pass the `payment_session_id` to the `collectCardData` function
 
 The required parameters are different depending on the `session_type`, `mode`, and `allow_save_payment_method`:
 
@@ -55,12 +66,6 @@ Depending on the parameters, some payment methods are filtered out. At least one
 - `allowed_payment_channels` allowlists payment methods by channel_code
 - `session_type` and `mode` filter out unsupported payment methods
 - `session_type=SUBSCRIPTION` filters out payment methods not supporting merchant initiated transactions
-
-IMPORTANT: Never log or save the `components_sdk_key` or `payment_link_url`. Save the session ID instead. If you need to, fetch the `components_sdk_key` or `payment_link_url` later using that ID.
-
-IMPORTANT: If using payment links, ensure you handle when the page is restored from the bfcache. Clear any pending states set up during the session load.
-
-IMPORTANT: Callback urls must be https and must not be localhost. Leave them blank in development or use a dummy url or ngrok or /etc/hosts. `components_configuration` urls can be localhost.
 
 ### Get Session
 
@@ -84,3 +89,17 @@ Reference: [Session](https://docs.xendit.co/apidocs/webhook-notification-sent-de
 | `payment_session.expired`   | Session expired before completion |
 
 The webhook payload is the same payload as the GET session endpoint.
+
+### payment_session.completed
+
+Fires when a session successfully completes. The meaning depends on `session_type`:
+
+- **PAY**: Payment captured (or authorized if `capture_mode:"MANUAL"`) successfully. The payload includes `payment_id` and `payment_request_id`.
+- **SAVE**: Payment method saved successfully. The payload includes `payment_token_id`.
+- **SUBSCRIPTION**: Subscription activated. If the first cycle is immediate, the first payment has been captured. The payload includes `payment_token_id` and `recurring_plan_id`.
+
+IMPORTANT: This event indicates a successful end of the payment flow. For payments, you should prefer to listen to the `payment.*` event for order fulfilment.
+
+### payment_session.expired
+
+Fires when a session reaches its `expires_at` timestamp without completion. This is not fired on cancellation.

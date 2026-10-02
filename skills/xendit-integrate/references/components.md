@@ -18,14 +18,7 @@ When creating a components session, you must specify the domains or apps that ar
 - To specify an android app: `components_configuration: { origins: ["android:com.mycompany.myapp"] }`
 - To specify an iOS app: `components_configuration: { origins: ["ios:com.mycompany.myapp"] }`
 
-On web, it's strongly recommended to specify `components_configuration.return_url` as well. This should direct the user back to the same page they were on. It's used when returning from redirect payments.
-
-Localhost allowed?
-
-- ❌ success_return_url (usually not used with components)
-- ❌ cancel_return_url (usually not used with components)
-- ✅ components_configuration.origins (mandatory)
-- ✅ components_configuration.return_url (only use on web)
+On web, you must also specify `components_configuration.return_url` (if you don't the user will land on a generic status page). `return_url` should direct the user back to the same flow they were on. It's used when returning from redirect payments.
 
 ## Web-specific tips
 

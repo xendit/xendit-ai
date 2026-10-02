@@ -19,6 +19,24 @@ Development API keys start with `xnd_development_`. Production API keys start wi
 
 The API key is used as the username of basic auth i.e. `Authorization: Basic base64(api_key + ":")` where password is empty.
 
+## Webhooks
+
+Webhooks are configured on the Xendit dashboard and are fired in response to certain events.
+
+Webhooks are authenticated with the `x-callback-token` header, which must be configured in the dashboard.
+
+They all have the structure `{ event: string, data: unknown }` where the type of `data` depends on the event type.
+
+Respond with a 200 in a timely manner, unless you want the webhook to be resent. It will be resent up to 6 times with increasing delays.
+
+Events can arrive out of order.
+
+In rare cases, such as partner downtime, automated reconciliation, or incidents, events can arrive significantly late.
+
+IMPORTANT: Always validate the `x-callback-token` header to ensure the webhook is only called by Xendit.
+
+IMPORTANT: You must handle out of order or duplciate events. Ensure your processing logic is atomic and idempotent or store events and discard duplicates. Identify duplicates using the event name and the ID of the respective entity.
+
 ## Conventions
 
 The Xendit API follows standard REST conventions. It uses JSON request and response bodies.

@@ -74,3 +74,34 @@ Reference: [Account Suspension](https://docs.xendit.co/apidocs/account-suspensio
 | `account.cleared`      | Subaccount cleared after review        |
 | `account.verification` | Subaccount KYC status changed          |
 | `split.payment`        | Split payment completed or failed      |
+
+### account.suspected
+
+Fires when Xendit suspects a subaccount may be involved in fraudulent activity. An investigation is ongoing. The subaccount status is `SUSPECTED`.
+
+A `account.suspended` or `account.cleared` event will follow after Xendit's review.
+
+### account.suspended
+
+Fires when a subaccount is suspended due to confirmed or high-confidence fraud detection. The subaccount status is `SUSPENDED`. The `reason` field provides context.
+
+Use this event to immediately disable the account in your platform.
+
+### account.cleared
+
+Fires when a subaccount is cleared after investigation.
+
+### account.verification
+
+Fires when the KYC verification status of a subaccount changes. The `kyc.status` field indicates the new status:
+
+- `VERIFICATION_IN_PROGRESS`: KYC is being processed
+- `PASSED`: KYC completed successfully, subaccount can transact
+- `AWAITING_RESUBMISSION`: Documents need correction (check `kyc.failure_reasons`)
+- `FAILED`: KYC failed
+
+Use this event to track onboarding progress. For `AWAITING_RESUBMISSION`, prompt the merchant to correct and re-upload the flagged documents. For `PASSED`, enable full functionality for the merchant.
+
+### split.payment
+
+Fires when a split payment is completed or fails. The `status` field is either `COMPLETED` (funds routed successfully) or `FAILED` (split failed, check `failure_code`).
