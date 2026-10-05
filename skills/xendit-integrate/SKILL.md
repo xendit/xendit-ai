@@ -41,7 +41,7 @@ IMPORTANT: You must handle out of order or duplicate events. Ensure your process
 
 The Xendit API follows standard REST conventions. It uses JSON request and response bodies.
 
-Errors are always of the form `{ "error_code": string, "message": string }`. The `message` field is always a technical error and should never be shown to customers. Prefer showing a generic error (you can show specific error message if you recognize the `error_code`). If using components, use the provided end-user-appropriate error strings. Always log payment flow errors, even if they are client errors.
+Errors are always of the form `{ "error_code": string, "message": string }`. The `message` field is always a technical error and should never be shown to customers. Prefer showing a generic error (you can show a specific error message if you recognize the `error_code`). If using components, use the provided end-user-appropriate error strings. Always log payment flow errors, even if they are client errors.
 
 Coding agents should not be concerned with rate limiting unless the user requests it. Rate limits are generally 60/min in test mode and 600/min in live mode. Use the headers `rate-limit-limit` (max), `rate-limit-remaining` (current), `rate-limit-reset` (timer) if you need to read the rate limit status.
 
