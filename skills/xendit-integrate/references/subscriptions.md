@@ -25,7 +25,7 @@ All get list endpoints have pagination with `limit`, `before_id`, and `after_id`
 
 IMPORTANT: All these endpoints are called from the server. Never call them from the client. Never expose the API key to the client.
 
-IMPORTANT: For new integrations, always use the header `api-version: 2026-01-01`. For integrations using the old version, continue using the old version, or upgrade with care. They are not compatible. Subscriptions must be manipulated with the API version they were created with. You must track the version used if migrating.
+IMPORTANT: For new integrations, always use the header `api-version: 2026-01-01`. For integrations using older versions, continue using the old version, or upgrade with care. They are not compatible. Subscriptions must be manipulated with the API version they were created with. You must track the version used if migrating.
 
 IMPORTANT: The subscriptions API does NOT handle creation of a subscription from a new customer payment method. The Session API with `type: "SUBSCRIPTION"` does that. The subscriptions API _does_ handle creation of new subscriptions from existing Payment Tokens (no customer interaction i.e. resubscribe previously subscribed user).
 

@@ -67,6 +67,8 @@ Depending on the parameters, some payment methods are filtered out. At least one
 - `session_type` and `mode` filter out unsupported payment methods
 - `session_type=SUBSCRIPTION` filters out payment methods not supporting merchant initiated transactions
 
+Providing payment-method-specific data is to Sessions is generally not required, as customers input most properties from the UI. There are exceptions, e.g. `card_on_file_type` for CARDS which is a merchant-provided property. Sessions' `channel_properties` can hold multiple sets of properties, one for each channel. It's a map of channel code to channel properties, where channel properties is the same as what Payment Request and Payment Token accept. e.g. `channel_properties: { CARDS: { card_on_file_type: "MERCHANT_UNSCHEDULED" } }`. See the reference for the Payments API for more info on payment-method-specific properties.
+
 ### Get Session
 
 Fetches a Session.
@@ -98,7 +100,7 @@ Fires when a session successfully completes. The meaning depends on `session_typ
 - **SAVE**: Payment method saved successfully. The payload includes `payment_token_id`.
 - **SUBSCRIPTION**: Subscription activated. If the first cycle is immediate, the first payment has been captured. The payload includes `payment_token_id` and `recurring_plan_id`.
 
-IMPORTANT: This event indicates a successful end of the payment flow. For payments, you should prefer to listen to the `payment.*` event for order fulfilment.
+IMPORTANT: This event indicates a successful end of the payment flow. For payments, you should prefer to listen to the `payment.*` event for order fulfillment.
 
 ### payment_session.expired
 

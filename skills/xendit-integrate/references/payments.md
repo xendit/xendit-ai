@@ -21,6 +21,14 @@ IMPORTANT: Amounts are _not_ in minor units.
 
 IMPORTANT: Creating a new payment request, replacing an existing one, can result in double payment. Cancelling helps, but not all payment methods support cancellation so you must handle unexpected payments.
 
+## Payment-method-specific information
+
+Each payment method is a little different, and all the differences are encapsulated in `channel_properties` (for input parameters) and `payment_details` or `token_details` for output data.
+
+All payment-method-specific information can be read from `https://doc-widget.xendit.co/channel-data-finder/md/${channel_code}.md`. If asked about channel properties, read this. Always use this as a reference when working with one specific payment method.
+
+IMPORTANT: Not all `channel_properties` fields should be client controlled. Do not pass-through the channel properties object from the client.
+
 ## Payment Request endpoints
 
 | Endpoint                                      | Method | Description                       | Reference                                                                            |
@@ -36,6 +44,8 @@ IMPORTANT: Creating a new payment request, replacing an existing one, can result
 ### Create Payment Request
 
 Initiates a payment. Specify the payment method type and method-specific properties. Returns actions the customer must complete (e.g. redirect URLs, QR codes, bank transfer instructions).
+
+Each payment method takes some payment-method-specific parameters, which are in `channel_properties`. Always read the payment-method-specific information to check for required parameters before creating Payment Tokens.
 
 ### Get Payment Request
 
@@ -77,9 +87,13 @@ Issues a full or partial refund for a completed payment. Support varies by payme
 
 Tokenizes a payment method for future use. For cards, this stores the card details securely. The token can then be used in subsequent payment requests without re-entering card details.
 
+Each payment method takes some payment-method-specific parameters, which are in `channel_properties`. Always read the payment-method-specific information to check for required parameters before creating Payment Tokens.
+
 ### Get Payment Token
 
 Fetches a Payment Token.
+
+Each payment method provides some payment-method-specific parameters on the token object, which are in `token_details`.
 
 ### Cancel Payment Token
 
@@ -102,6 +116,8 @@ Payment objects are not created directly. Payment objects are created by Xendit 
 ### Get Payment
 
 Fetches a Payment.
+
+Each payment method provides some payment-method-specific parameters returned on the payment object, which are in `payment_details`.
 
 ### Cancel Payment
 
@@ -134,7 +150,7 @@ IMPORTANT: There aren't events for the complete payment request lifecycle, by de
 
 Fires when a payment request expires without receiving payment. An expired payment request will no longer accept new payments.
 
-IMPORTANT: Since some payment methods can't be cancelled, it's possible to recieve payment after expiry. You must listent to the `payment.*` webhooks.
+IMPORTANT: Since some payment methods can't be cancelled, it's possible to receive payment after expiry. You must listen to the `payment.*` webhooks.
 
 ### payment.capture
 
