@@ -35,13 +35,13 @@ In rare cases, such as partner downtime, automated reconciliation, or incidents,
 
 IMPORTANT: Always validate the `x-callback-token` header to ensure the webhook is only called by Xendit.
 
-IMPORTANT: You must handle out of order or duplciate events. Ensure your processing logic is atomic and idempotent or store events and discard duplicates. Identify duplicates using the event name and the ID of the respective entity.
+IMPORTANT: You must handle out of order or duplicate events. Ensure your processing logic is atomic and idempotent or store events and discard duplicates. Identify duplicates using the event name and the ID of the respective entity.
 
 ## Conventions
 
 The Xendit API follows standard REST conventions. It uses JSON request and response bodies.
 
-Errors are always of the form `{ "error_code": string, "message": string }`. The `message` field is always a technical error and should never be shown to customers. Prefer showing a generic error (you can show specific error message if you recognise the `error_code`). If using components, use the provided end-user-appropriate error strings. Always log payment flow errors, even if they are client errors.
+Errors are always of the form `{ "error_code": string, "message": string }`. The `message` field is always a technical error and should never be shown to customers. Prefer showing a generic error (you can show a specific error message if you recognize the `error_code`). If using components, use the provided end-user-appropriate error strings. Always log payment flow errors, even if they are client errors.
 
 Coding agents should not be concerned with rate limiting unless the user requests it. Rate limits are generally 60/min in test mode and 600/min in live mode. Use the headers `rate-limit-limit` (max), `rate-limit-remaining` (current), `rate-limit-reset` (timer) if you need to read the rate limit status.
 
@@ -53,7 +53,7 @@ Coding agents should not be concerned with rate limiting unless the user request
 
 "Channel Properties" refers to the set of payment-method-specific inputs (usually user inputs but sometimes merchant config) passed to the Payment API, Payment Sessions API, and Payouts API.
 
-"Payment" refers to a payment or authorization that has already occured.
+"Payment" refers to a payment or authorization that has already occurred.
 
 "Session" or "Payment Session" is an entity that abstracts the payment flow, handling retries, payment method selection, and UI.
 
@@ -77,21 +77,21 @@ Always ensure you know which Xendit integration the user intends to use. The use
 
 ## Routing by API type
 
-Referenced files are local, relative to this file.
+IMPORTANT: Referenced files are local, relative to this file. Not remote files.
 
-| API Type         | Local Reference Doc           | Description                                                                                                                                                                          |
-| ---------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Payments         | `references/payments.md`      | Low level inbound payment API. One time payment, tokenization, pay with token, capture, refund.                                                                                      |
-| Payment Sessions | `references/sessions.md`      | High level inbound payment API. Entry point API for payment links, components, and subscriptions. Creates resources, lower level operations on created resources require other APIs. |
-| Components       | `references/components.md`    | Frontend API for embedded payments on your website, iOS, or Android app. Requires as input an SDK key created by the Sessions API.                                                   |
-| Subscriptions    | `references/subscriptions.md` | For manipulating subscriptions. New subscriptions are created with the sessions API (unless using an existing customer and token).                                                   |
-| Customers        | `references/customers.md`     | For manipulating customer records.                                                                                                                                                   |
-| Payouts          | `references/payouts.md`       | Outbound payments API.                                                                                                                                                               |
-| FX               | `references/fx.md`            | Currency conversion quotes (for payouts) and conversions (for merchant balance).                                                                                                     |
-| Disputes         | `references/disputes.md`      | Fetch and manipulate disputes filed by customers. Submit evidence (text or image) or accept disputes.                                                                                |
-| XenPlatform      | `references/xenplatform.md`   | For creating and manipulating subaccounts, transfers, and split payments.                                                                                                            |
-| Transactions     | `references/transactions.md`  | Fetch account transaction history.                                                                                                                                                   |
-| Balance          | `references/balance.md`       | Fetch account balances.                                                                                                                                                              |
+| API Type         | Local Reference Doc             | Description                                                                                                                                                                          |
+| ---------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Payments         | `./references/payments.md`      | Low level inbound payment API. One time payment, tokenization, pay with token, capture, refund.                                                                                      |
+| Payment Sessions | `./references/sessions.md`      | High level inbound payment API. Entry point API for payment links, components, and subscriptions. Creates resources, lower level operations on created resources require other APIs. |
+| Components       | `./references/components.md`    | Frontend API for embedded payments on your website, iOS, or Android app. Requires as input an SDK key created by the Sessions API.                                                   |
+| Subscriptions    | `./references/subscriptions.md` | For manipulating subscriptions. New subscriptions are created with the sessions API (unless using an existing customer and token).                                                   |
+| Customers        | `./references/customers.md`     | For manipulating customer records.                                                                                                                                                   |
+| Payouts          | `./references/payouts.md`       | Outbound payments API.                                                                                                                                                               |
+| FX               | `./references/fx.md`            | Currency conversion quotes (for payouts) and conversions (for merchant balance).                                                                                                     |
+| Disputes         | `./references/disputes.md`      | Fetch and manipulate disputes filed by customers. Submit evidence (text or image) or accept disputes.                                                                                |
+| XenPlatform      | `./references/xenplatform.md`   | For creating and manipulating subaccounts, transfers, and split payments.                                                                                                            |
+| Transactions     | `./references/transactions.md`  | Fetch account transaction history.                                                                                                                                                   |
+| Balance          | `./references/balance.md`       | Fetch account balances.                                                                                                                                                              |
 
 ## Subaccounts
 
