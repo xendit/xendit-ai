@@ -140,9 +140,16 @@ Fires when a split payment is completed or fails. The `status` field is either `
 
 ## Common Errors
 
-| Error code | Cause | Fix |
-| ---------- | ----- | --- |
-| `INVALID_OR_NOT_FOUND_ACCOUNT_ID` | Subaccount ID doesn't exist or belongs to a different master | Verify the subaccount `id` from the create/list response |
-| `ACCOUNT_ALREADY_EXISTS` | Email already registered under this master | Use a unique email per subaccount |
-| `FORBIDDEN_OPERATION` | Action not permitted for this account type (e.g. deleting a MANAGED account via an OWNED-only path) | Check `type` and use the appropriate flow |
-| `INSUFFICIENT_BALANCE` | Not enough funds in source account for transfer | Check balance before initiating transfer |
+Sourced from `xendit-platform-service` — `src/services/accounts_v3_service/index.ts`, `src/controllers/accounts/v3/index.ts`, and middleware layer.
+
+| Error code | HTTP | Cause |
+| ---------- | ---- | ----- |
+| `BUSINESS_NOT_FOUND_ERROR` | 404 | Master or sub-account ID not found |
+| `ACCOUNT_NOT_FOUND_ERROR` | 404 | Account ID not found (v3 public endpoints) |
+| `INVALID_DATA_PROVIDED` | 400 | Invalid `identity.country_of_incorporation`, `identity.entity_type`, or `configuration` fields. In TEST mode: `send_email_invite` must be false, webhook recipient must be `MASTER_ACCOUNT`, entity type must be `CORPORATION`. |
+| `DISALLOWED_OPERATION` | 403 | Master account is under suspicion/suspension, or the account is not `is_regional=true` and cannot use the v3 API |
+| `XENPLATFORM_AUTHORIZATION_ERROR` | 403 | Master account not authorized for XenPlatform, or authorization check failed |
+| `MAXIMUM_ACCOUNT_REACHED` | 400 | Platform has hit its subaccount creation limit |
+| `XEN_PLATFORM_SUB_ACCOUNT_NOT_LIVE` | 400 | Attempted to send invitation email but account is not in LIVE mode |
+| `USER_ALREADY_ACTIVATED_ERROR` | 409 | User has already accepted a previous invitation |
+| `USER_BUSINESS_NOT_FOUND_ERROR` | 404 | No previous invitation found for this email when trying to resend |
