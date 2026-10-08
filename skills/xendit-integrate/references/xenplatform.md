@@ -16,6 +16,8 @@ IMPORTANT: All these endpoints are called from the server using your master acco
 
 IMPORTANT: Most Xendit APIs support the `for-user-id` header to act on behalf of a subaccount. Use the subaccount's `id` from the create/list response.
 
+IMPORTANT: In live mode, `for-user-id` calls are rejected with 404 `XEN_PLATFORM_SUB_ACCOUNT_NOT_LIVE` until the subaccount is `LIVE` (a few endpoints are configured to allow it). Test mode subaccounts are `LIVE` immediately, so code that works in test can still fail in live. Wait for the `account.verification` webhook with `PASSED` before transacting.
+
 ## Account endpoints
 
 | Endpoint            | Method | Description         | Reference                                                            |
@@ -28,11 +30,27 @@ IMPORTANT: Most Xendit APIs support the `for-user-id` header to act on behalf of
 
 Creates a subaccount linked to your master account. Requires `name`, `email`, and `identity` (country + entity type). Set `configuration.users.send_email_invite: true` to send a dashboard invitation.
 
-Subaccounts go through KYC verification. Test mode subaccounts are created with status LIVE immediately.
+Subaccounts go through KYC verification. Test mode subaccounts are created with status LIVE immediately. They exist only in test mode and never go live.
+
+Constraints:
+
+- `identity.country_of_incorporation` must match the master account's country of operation, unless cross-country subaccounts are enabled for the master (ask the account manager).
+- Available `identity.entity_type` values depend on the country.
+- With a test API key, `entity_type` must be `CORPORATION`, the country must match the master account's country, and `configuration` must be omitted or use the defaults (`send_email_invite: false`, `webhooks.recipient: MASTER_ACCOUNT`).
+- `configuration.webhooks.recipient` is `MASTER_ACCOUNT` (default, events go to the master account's webhook URLs) or `SUB_ACCOUNT` (events go to the subaccount's own webhook URLs, which must be configured). The v2 values `MASTER` and `SUB` are no longer used.
+
+Payment methods are activated per subaccount for its own country of operation. A subaccount does not inherit the master account's payment methods, even when cross-country subaccounts are enabled.
 
 ### List Accounts
 
 Returns paginated subaccounts. Filter by `email`, `status`, `type` (MANAGED or OWNED), and date ranges.
+
+`type` describes how the subaccount is run ([help article](https://help.xendit.co/hc/en-us/articles/6787784288665-What-is-the-difference-between-managed-and-owned-sub-accounts)):
+
+- `OWNED`: fully controlled by the master account and invisible to the partner by default. It has no dashboard users unless the master invites them after creation (they get access except developer settings). The partner submits no onboarding information, and the platform's details are shown to end customers. Disabled by default for Indonesia-based accounts.
+- `MANAGED`: the partner gets a full Xendit account with dashboard access from creation, submits their own onboarding information, and their details are shown to end customers. The master can still transact on its behalf with `for-user-id`.
+
+The type cannot be changed after creation. The v2 list and fetch responses use a different shape from the v3 create response (no `identity` / `configuration` objects).
 
 ### Get Account
 
@@ -57,7 +75,7 @@ Defines how payments are split between accounts. Each route specifies a `destina
 
 ### Create Transfer
 
-Moves funds between master and subaccounts, or between subaccounts. Requires unique `reference`, `amount`, `source_user_id`, and `destination_user_id`.
+Moves funds between master and subaccounts, or between subaccounts. Requires unique `reference`, `amount`, `source_user_id`, and `destination_user_id`. In live mode, both accounts must be `LIVE` or the transfer fails with `XEN_PLATFORM_SUB_ACCOUNT_NOT_LIVE`.
 
 ### Get Transfer by Reference
 

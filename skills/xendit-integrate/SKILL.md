@@ -99,9 +99,11 @@ Subaccounts are directly manipulated with the XenPlatform APIs but most APIs can
 
 If you have the master account, use a master account API key with the `for-user-id` header to change your identity to your subaccount. e.g. the 'fetch balance' endpoint fetches the master account balance but with `for-user-id` it can fetch a subaccount balance.
 
+In live mode the subaccount must be `LIVE` before `for-user-id` calls succeed. See `./references/xenplatform.md`.
+
 ## Remote API Docs (docs.xendit.co/\*.md)
 
-Always include the the .md extension or it will return garbage.
+Always include the .md extension or it will return garbage.
 
 API reference docs contain openapi specs. They are large, avoid reading the whole file at once if possible.
 
